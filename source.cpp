@@ -215,19 +215,19 @@ vector<wordIF> rabin_Karp(char **matrix, int width, int height, vector<string>& 
 }
 
 // ham KMP 
-void LBS(string word,int lps[]){
+void LBS(string word,int *&lps){
     lps[0]=0;
-    int idx=0;
+    int temp=0;
     int i=1;
     while(i<word.size()){
-        if(word[i]==word[idx]){
-            idx++;
-            lps[i]=idx;
+        if(word[i]==word[temp]){
+            temp++;
+            lps[i]=temp;
             i++;
         }
         else{
-            if(idx>0){
-                idx=lps[idx-1];
+            if(temp>0){
+                temp=lps[temp-1];
             }
             else{
                 lps[i]=0;
@@ -238,40 +238,71 @@ void LBS(string word,int lps[]){
 }
 vector<wordIF> KMD(char **matrix, int width, int height, vector<string> &word){
     vector<wordIF> result;
-    wordIF dummy;
+    wordIF dummy;   
     int k=0;
     while(k<word.size()){
         string s=word[k];
+        // string s="aaaba";
         int M=s.size();
-
+        int *lps=new int [M];
+        LBS(s,lps); 
         for(int i=0;i<height;i++){
-            int lps[M];
-            LBS(s,lps);
-            int h=0;
-            int j=0;
-            while(j<width){
-                if(matrix[i][h]==s[j]){
+            
+            int h=0;//index cua word
+            int j=0;//index input
+            while((width-j)>=(M-h)){
+                if(matrix[i][j]==s[h]){
                     h++;
                     j++;
                 }
-                if(j==s.size()){
-                    dummy.x = j;
+                if(h==s.size()){
+                    dummy.x = j - M;
                     dummy.y = i;
+                    dummy.dir = "LR";
+                    dummy.name = word[k];
+                    result.push_back(dummy);
+                    h=lps[h-1];
+                }
+                else if(j<width&& matrix[i][j]!=s[h]){
+                    if(h!=0) 
+                    h=lps[h-1];
+                    else{
+                        j=j+1;
+                    }
+                }
+            }
+            
+        }
+
+
+        for(int j=0;j<width;j++){
+            
+            int h=0;//index cua word
+            int i=0;//index input
+            while((height-i)>=(M-h)){
+                if(matrix[i][j]==s[h]){
+                    h++;
+                    i++;
+                }
+                if(h==s.size()){
+                    dummy.x = j;
+                    dummy.y = i-M;
                     dummy.dir = "TD";
                     dummy.name = word[k];
                     result.push_back(dummy);
-                    j=lps[j-1];
+                    h=lps[h-1];
                 }
-                else if(h<width&& matrix[i][h]!=s[j]){
-                    if(j!=0) j=lps[j-1];
+                else if(i<height&& matrix[i][j]!=s[h]){
+                    if(h!=0) 
+                    h=lps[h-1];
                     else{
                         i=i+1;
                     }
                 }
             }
+            
         }
-        
-
+        delete[] lps;
         k++;
     }
     return result;
@@ -298,7 +329,7 @@ int main()
     print(matrix, width, height);
     // tim kiem tren mang, tim kiem theo 3 thuat toan Brute-force, Rabin-Karp, Knuth-Morris-Pratt
     vector<wordIF> checkMatching = brute_force(matrix, width, height, word);
-    printWPD(checkMatching);
+    // printWPD(checkMatching);
     int q = INT_MAX;
     checkMatching= KMD(matrix, width, height, word);
     printWPD(checkMatching);
