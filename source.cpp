@@ -236,7 +236,7 @@ void LBS(string word,int *&lps){
         }
     }
 }
-vector<wordIF> KMD(char **matrix, int width, int height, vector<string> &word){
+vector<wordIF> KMP(char **matrix, int width, int height, vector<string> &word){
     vector<wordIF> result;
     wordIF dummy;   
     int k=0;
@@ -307,13 +307,36 @@ vector<wordIF> KMD(char **matrix, int width, int height, vector<string> &word){
     }
     return result;
 }
-
+vector<wordIF> order(char **matrix, int width, int height, vector<string>& word, int q){
+    cout<<"1. Brute-force (Naive String-matching) "<<endl;
+    cout<<"2. Rabin-Karp "<<endl;
+    cout<<"3. Knuth-Morris-Pratt "<<endl;
+    cout<<"Nguoi dung nhap thao tac: ";
+    int x;
+    cin>>x;
+    vector<wordIF> checkMatching;
+    switch (x)
+    {
+    case 1:
+        checkMatching=brute_force(matrix, width, height,word);
+        break;
+    case 2:
+        checkMatching=rabin_Karp(matrix, width, height,word,q);
+        break;
+    case 3: 
+        checkMatching=KMP(matrix, width, height,word);
+        break;
+    default:
+        break;
+    } 
+    return checkMatching;
+}
 void printWPD(vector<wordIF> result)
 {
     cout << result.size() << endl;
     for (int i = 0; i < result.size(); i++)
     {
-        cout << result[i].name << " (" << result[i].x << "," << result[i].y << ") " << result[i].dir << endl;
+        cout << result[i].name << " (" << result[i].y << "," << result[i].x << ") " << result[i].dir << endl;
     }
 }
 int main()
@@ -328,10 +351,12 @@ int main()
     readFile(matrix, width, height, word);
     print(matrix, width, height);
     // tim kiem tren mang, tim kiem theo 3 thuat toan Brute-force, Rabin-Karp, Knuth-Morris-Pratt
-    vector<wordIF> checkMatching = brute_force(matrix, width, height, word);
     // printWPD(checkMatching);
     int q = INT_MAX;
-    checkMatching= KMD(matrix, width, height, word);
+    vector<wordIF> checkMatching = order(matrix, width, height, word,q);
+
+    // checkMatching= KMP(matrix, width, height, word);
+    // checkMatching= rabin_Karp(matrix,width,height,word,q);
     printWPD(checkMatching);
 
     for (int i = 0; i < height; i++)
